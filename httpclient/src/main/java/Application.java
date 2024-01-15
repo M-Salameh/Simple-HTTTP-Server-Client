@@ -4,7 +4,7 @@ import java.util.concurrent.ExecutionException;
 
 public class Application {
     private static final String WORKER_ADDRESS_1 = "http://localhost:8080/task";
-    private static final String WORKER_ADDRESS_2 = "http://localhost:8080/task";
+    private static final String WORKER_ADDRESS_2 = "http://localhost:8081/task";
 
     public static void main(String[] args) throws ExecutionException, InterruptedException {
 
@@ -21,7 +21,7 @@ public class Application {
             System.out.println(result);
         }
 
-        List<String> resultsWithHeaders = aggregator.sendTasksToWorkers(Arrays.asList(WORKER_ADDRESS_1, WORKER_ADDRESS_2),
+        List<String> resultsWithHeaders = aggregator.sendTasksToWorkers(Arrays.asList(WORKER_ADDRESS_1/*, WORKER_ADDRESS_2*/),
                 Arrays.asList(task1, task2), headers);
 
         for (String result : resultsWithHeaders) {

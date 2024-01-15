@@ -14,18 +14,32 @@ public class Aggregator {
     /*send task to list of workers*/
     public List<String> sendTasksToWorkers(List<String> workersAddresses, List<String> tasks) throws ExecutionException, InterruptedException {
         List<String> responses = new ArrayList<>();
-        List<CompletableFuture<String>> temp = new ArrayList<>();
+        //List<CompletableFuture<String>> temp = new ArrayList<>();
         for (String workerAddr : workersAddresses)
         {
             for (String task : tasks)
             {
-                temp.add(webClient.sendTask(workerAddr , task.getBytes()));
+                try
+                {
+                    responses.add(webClient.sendTask(workerAddr, task.getBytes()).get()+ " via " + workerAddr);
+                }
+                catch (Exception e)
+                {
+                    System.out.println("Cannot Connect To Server " + workerAddr);
+                    break;
+                }
             }
         }
-        for (CompletableFuture<String> resp : temp)
+        /*for (CompletableFuture<String> resp : temp)
         {
-            responses.add(resp.get());
-        }
+            try {
+                responses.add(resp.get());
+            }
+            catch (Exception e)
+            {
+                System.out.println("Connection Problem");
+            }
+        }*/
         //throw new UnsupportedOperationException();
         return responses;
     }
@@ -33,18 +47,33 @@ public class Aggregator {
     /*send task to list of workers*/
     public List<String> sendTasksToWorkers(List<String> workersAddresses, List<String> tasks, String headers) throws ExecutionException, InterruptedException {
         List<String> responses = new ArrayList<>();
-        List<CompletableFuture<String>> temp = new ArrayList<>();
+        //List<CompletableFuture<String>> temp = new ArrayList<>();
         for (String workerAddr : workersAddresses)
         {
             for (String task : tasks)
             {
-                temp.add(webClient.sendTask(workerAddr , task.getBytes() , headers));
+                try
+                {
+                    responses.add(webClient.sendTask(workerAddr , task.getBytes() , headers).get()+" via "+workerAddr);
+                }
+                catch (Exception e)
+                {
+                    System.out.println("Cannot Connect To Server " + workerAddr);
+                    break;
+                }
             }
         }
-        for (CompletableFuture<String> resp : temp)
+
+        /*for (CompletableFuture<String> resp : temp)
         {
-            responses.add(resp.get());
-        }
+            try {
+                responses.add(resp.get());
+            }
+            catch (Exception e)
+            {
+                System.out.println("Connection Problem");
+            }
+        }*/
         return responses;
     }
 }
