@@ -6,6 +6,7 @@ import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.util.Arrays;
 import java.util.concurrent.Executors;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class WebServer
@@ -33,9 +34,12 @@ public class WebServer
     }
 
     public void startServer() {
-        try {
+        try
+        {
             this.server = HttpServer.create(new InetSocketAddress(port), 0);
-        } catch (IOException e) {
+           // logger.log(Level.INFO,"Server Started at : " + System.nanoTime());
+        }
+        catch (IOException e) {
             throw new RuntimeException(e);
         }
 
@@ -50,7 +54,8 @@ public class WebServer
 
     }
 
-    private void handleTaskRequest(HttpExchange exchange) throws IOException {
+    private void handleTaskRequest(HttpExchange exchange) throws IOException
+    {
         if (!exchange.getRequestMethod().equalsIgnoreCase("post")) {
             exchange.close();
             return;

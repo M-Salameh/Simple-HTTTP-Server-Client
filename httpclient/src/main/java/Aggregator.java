@@ -14,14 +14,14 @@ public class Aggregator {
     /*send task to list of workers*/
     public List<String> sendTasksToWorkers(List<String> workersAddresses, List<String> tasks) throws ExecutionException, InterruptedException {
         List<String> responses = new ArrayList<>();
-        //List<CompletableFuture<String>> temp = new ArrayList<>();
+        List<CompletableFuture<String>> temp = new ArrayList<>();
         for (String workerAddr : workersAddresses)
         {
             for (String task : tasks)
             {
                 try
                 {
-                    responses.add(webClient.sendTask(workerAddr, task.getBytes()).get()+ " via " + workerAddr);
+                    temp.add(webClient.sendTask(workerAddr, task.getBytes()));
                 }
                 catch (Exception e)
                 {
@@ -30,31 +30,22 @@ public class Aggregator {
                 }
             }
         }
-        /*for (CompletableFuture<String> resp : temp)
-        {
-            try {
-                responses.add(resp.get());
-            }
-            catch (Exception e)
-            {
-                System.out.println("Connection Problem");
-            }
-        }*/
-        //throw new UnsupportedOperationException();
+        responses = joinFutures(temp);
         return responses;
     }
 
     /*send task to list of workers*/
     public List<String> sendTasksToWorkers(List<String> workersAddresses, List<String> tasks, String headers) throws ExecutionException, InterruptedException {
         List<String> responses = new ArrayList<>();
-        //List<CompletableFuture<String>> temp = new ArrayList<>();
+        List<CompletableFuture<String>> temp = new ArrayList<>();
+
         for (String workerAddr : workersAddresses)
         {
             for (String task : tasks)
             {
                 try
                 {
-                    responses.add(webClient.sendTask(workerAddr , task.getBytes() , headers).get()+" via "+workerAddr);
+                    temp.add(webClient.sendTask(workerAddr , task.getBytes() , headers));
                 }
                 catch (Exception e)
                 {
@@ -64,16 +55,33 @@ public class Aggregator {
             }
         }
 
-        /*for (CompletableFuture<String> resp : temp)
-        {
-            try {
-                responses.add(resp.get());
-            }
-            catch (Exception e)
-            {
-                System.out.println("Connection Problem");
-            }
-        }*/
+        responses = joinFutures(temp);
         return responses;
+    }
+
+    private List<String> joinFutures(List<CompletableFuture<String>> futures)
+    {
+        CompletableFuture<Void> allFutures = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+        try
+        {
+            allFutures.get();
+        }
+        catch (InterruptedException | ExecutionException e)
+        {
+            e.printStackTrace();
+        }
+
+        List<String> results = new ArrayList<>();
+        for (CompletableFuture<String> future : futures)
+        {
+            try
+            {
+                String result = future.get();
+                results.add(result);
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+            }
+        }
+        return results;
     }
 }
